@@ -28,10 +28,14 @@ Plus basically everything else available in other languages.
 ## Translating from other languages
 - Assigment is done with and arrow: `x <- 5` or `5 -> x` (you can assign with `=` but this is usually reserved for arguments)
 - (Shortcut on macOS: `Option` + `-`)
-- Indexing is done with square brackets: `data[1]`
 - Vectors are created by concatenation: `c(1,2,3,4,5)`
 - Multiple data types are stored in lists: `niceList <- list(1, "Strings")`
 - These can be named and/or nested: `list("Salami Blessing" = 2, "Miracle Crimes" = c(1,2,3), "nestedList" = niceList)`
+
+----
+
+- Data frames are named tables
+- Indexing is done with square brackets: `data[1]`, or by name: `data$SalamiBlessing`
 - Mathematical operators are: `+`, `-`, `*`,`/`, `^` or `**`, `x %% y`, `x %/% y`
 - Logical operators are: `==`, `<`, `<=`, `!=`, `x & y`, `x | y`
 
@@ -77,6 +81,8 @@ R packages can handle almost all data types (.mat, .pickle, etc.), but who doesn
 
 The `fread` function is a "Fast and friendly file finagler", which automatically identifies delimited files and imports them.
 
+----
+
 ### Transforming data
 Most R packages demand your data in long (rather than wide) format, meaning a row entry for each event, even if this leads to redundant information (e.g. participant IDs).
 
@@ -86,6 +92,8 @@ The `melt` (wide to long) and `dcast` (long to wide) functions for `data.table`s
 meltedData = melt(data, id.vars = c("id", "condition"),
                 measure.vars = c("time1", "time2", "time3"))
 ```
+
+----
 
 ### Summarising data
 We often want a quick-and-dirty way of aggregating/partitioning data in meaningful ways. The `data.table` syntax lets you do this on the fly, rather than frantically typing buggy lines in front of your supervisor when you’ve forgotten how many missed trials were in a condition.
@@ -103,10 +111,9 @@ data[condition == "forceFed", mean(satiety), by = gender]
 - [Keys](https://cran.r-project.org/web/packages/data.table/vignettes/datatable-keys-fast-subset.html)
 - [Secondary and auto-indexing](https://cran.r-project.org/web/packages/data.table/vignettes/datatable-secondary-indices-and-auto-indexing.html)
 
-## Some more complex examples
-
-```{r complexExamples, echo = TRUE}
-
+### Some more complex examples
+```{r complexExamples1, echo = TRUE}
+# Remove duplicates
 cleanDuplicates <- function(data, cutoff = 0.25) {
   library(data.table)
   data <- as.data.table(data)
@@ -120,7 +127,11 @@ cleanDuplicates <- function(data, cutoff = 0.25) {
   data[drop] <- NA # Remove values with high CVs
   return(data)
 }
+```
 
+----
+
+```{r complexExamples2}
 # Create summary variables
 data[, ':='(
   firstState = state.name[which.min(question.attempt)],
@@ -130,7 +141,11 @@ data[, ':='(
   screenSecs = max(cumulative.secs.on.screen, na.rm = TRUE),
   lessonTime = max(mins.on.lesson)),
   by = .(userID, tutorialAttempt)]
+```
 
+----
+
+```{r complexExamples3}
 # Merging data.tables
 mergedData <- merge(data1, data2, by = c("id", "session"))
 ```
