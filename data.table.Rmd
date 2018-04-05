@@ -105,6 +105,11 @@ data[condition == "forceFed", mean(satiety), by = gender]
 ```
 
 ## More from the data.table vignette
+
+```{r downloadData, echo = FALSE}
+dt <- fread("https://raw.githubusercontent.com/wiki/arunsrinivasan/flights/NYCflights14/flights14.csv")
+```
+
 - [Syntax](https://cran.r-project.org/web/packages/data.table/vignettes/datatable-intro.html)
 - [Reference semantics](https://cran.r-project.org/web/packages/data.table/vignettes/datatable-reference-semantics.html)
 
