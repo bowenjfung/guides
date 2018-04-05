@@ -111,9 +111,24 @@ data[condition == "forceFed", mean(satiety), by = gender]
 - [Keys](https://cran.r-project.org/web/packages/data.table/vignettes/datatable-keys-fast-subset.html)
 - [Secondary and auto-indexing](https://cran.r-project.org/web/packages/data.table/vignettes/datatable-secondary-indices-and-auto-indexing.html)
 
-### Some more complex examples
-```{r complexExamples1, echo = TRUE}
-# Remove duplicates
+## Some more examples
+
+### Create summary variables
+```{r complexExamples2}
+data[, ':='(
+  firstState = state.name[which.min(question.attempt)],
+  lastState = state.name[which.max(question.attempt)],
+  maxQuestionAttempt = max(question.attempt),
+  modeTrap = modeFunc(state.name),
+  screenSecs = max(cumulative.secs.on.screen, na.rm = TRUE),
+  lessonTime = max(mins.on.lesson)),
+  by = .(userID, tutorialAttempt)]
+```
+
+----
+
+### Removing duplicates
+```{r complexExamples1}
 cleanDuplicates <- function(data, cutoff = 0.25) {
   library(data.table)
   data <- as.data.table(data)
@@ -131,22 +146,8 @@ cleanDuplicates <- function(data, cutoff = 0.25) {
 
 ----
 
-```{r complexExamples2}
-# Create summary variables
-data[, ':='(
-  firstState = state.name[which.min(question.attempt)],
-  lastState = state.name[which.max(question.attempt)],
-  maxQuestionAttempt = max(question.attempt),
-  modeTrap = modeFunc(state.name),
-  screenSecs = max(cumulative.secs.on.screen, na.rm = TRUE),
-  lessonTime = max(mins.on.lesson)),
-  by = .(userID, tutorialAttempt)]
-```
-
-----
-
+### Merging data.tables
 ```{r complexExamples3}
-# Merging data.tables
 mergedData <- merge(data1, data2, by = c("id", "session"))
 ```
 
