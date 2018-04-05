@@ -1,0 +1,141 @@
+---
+title: "data.table workshop"
+output: ioslides_presentation
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, eval = FALSE)
+```
+
+## R basics
+Why R? 
+
+Statistics.
+
+I have learnt most of what I know of stats by using R and wading in the documentation of different statistical packages.
+
+See also: open source, documentation, big data, *plotting* (see `ggplot2`).
+
+## What kind of statistics?
+
+- Basic models (see `ezANOVA`)
+- Advanced regression (see `lme4`, `nlme`, and `glmm`)
+- Machine learning (see `mice`, `caret`, `randomForest`, `e1071`, etc.)
+- Bayesian inference (MCMC; see [Stan®](http://mc-stan.org/users/interfaces/rstan))
+
+Plus basically everything else available in other languages.
+
+## Translating from other languages
+- Assigment is done with and arrow: `x <- 5` or `5 -> x` (you can assign with `=` but this is usually reserved for arguments)
+- (Shortcut on macOS: `Option` + `-`)
+- Indexing is done with square brackets: `data[1]`
+- Vectors are created by concatenation: `c(1,2,3,4,5)`
+- Multiple data types are stored in lists: `niceList <- list(1, "Strings")`
+- These can be named and/or nested: `list("Salami Blessing" = 2, "Miracle Crimes" = c(1,2,3), "nestedList" = niceList)`
+- Mathematical operators are: `+`, `-`, `*`,`/`, `^` or `**`, `x %% y`, `x %/% y`
+- Logical operators are: `==`, `<`, `<=`, `!=`, `x & y`, `x | y`
+
+## Basic operations
+```{r basicOps}
+# Loops
+for (i in seq(1,10)){
+  print(i)
+}
+
+# Function definitions
+newFunc <- function(arg1 = 0, arg2 = "type"){
+  result <- paste(arg1, arg2)
+  return(result)
+}
+
+# Linear regression forumlas
+model1 <- lm(y ~ x)
+summary(model1)
+```
+
+## Data wrangling with data.table
+`data.table` markets itself as a package for large datasets (e.g. 100GB in RAM). Secondarily, it "Offers a natural and flexible syntax, for faster development."
+
+You can install `data.table` just like every other R package: 
+`install.packages("data.table")`
+And check the documentation with:
+`?data.table` (or if you can't remember `apropos("table")`)
+
+There are some other alternatives that provide similar data manipulation, including `dplyr`.
+
+## From the data.table intro vignette
+- *concise* and *consistent* syntax irrespective of the set of operations you would like to perform to achieve your end goal.
+- performing analysis *fluidly* without the cognitive burden of having to map each operation to a particular function from a set of functions available before to perform the analysis.
+- *automatically* optimising operations internally, and very effectively, by knowing precisely the data required for each operation and therefore very fast and memory efficient.
+
+...if you are interested in reducing *programming* and *compute* time tremendously, then this package is for you. The philosophy that *data.table* adheres to makes this possible.
+
+## Simple use cases
+
+### Reading data
+R packages can handle almost all data types (.mat, .pickle, etc.), but who doesn’t like the simplicity of a .csv. But, sometimes, you don’t have control over data formats.
+
+The `fread` function is a "Fast and friendly file finagler", which automatically identifies delimited files and imports them.
+
+### Transforming data
+Most R packages demand your data in long (rather than wide) format, meaning a row entry for each event, even if this leads to redundant information (e.g. participant IDs).
+
+The `melt` (wide to long) and `dcast` (long to wide) functions for `data.table`s are extensions of the corresponding functions from the `reshape2` package.
+
+```{r melt}
+meltedData = melt(data, id.vars = c("id", "condition"),
+                measure.vars = c("time1", "time2", "time3"))
+```
+
+### Summarising data
+We often want a quick-and-dirty way of aggregating/partitioning data in meaningful ways. The `data.table` syntax lets you do this on the fly, rather than frantically typing buggy lines in front of your supervisor when you’ve forgotten how many missed trials were in a condition.
+
+```{r summarise, echo = TRUE}
+data[is.na(response), .N, by = condition]
+
+data[condition == "forceFed", mean(satiety), by = gender]
+```
+
+## More from the data.table vignette
+- [Syntax](https://cran.r-project.org/web/packages/data.table/vignettes/datatable-intro.html)
+- [Reference semantics](https://cran.r-project.org/web/packages/data.table/vignettes/datatable-reference-semantics.html)
+
+- [Keys](https://cran.r-project.org/web/packages/data.table/vignettes/datatable-keys-fast-subset.html)
+- [Secondary and auto-indexing](https://cran.r-project.org/web/packages/data.table/vignettes/datatable-secondary-indices-and-auto-indexing.html)
+
+## Some more complex examples
+
+```{r complexExamples, echo = TRUE}
+
+cleanDuplicates <- function(data, cutoff = 0.25) {
+  library(data.table)
+  data <- as.data.table(data)
+  
+  # Find CV of duplicates
+  cv <- data[ , lapply(.SD, function(x) sd(x, na.rm = T)/mean(x, na.rm = T)), by = "id"]
+  
+  # Get mean of duplicates
+  data <- data[ , lapply(.SD, mean, na.rm = T), by = "id"]
+  drop <- cv > cutoff
+  data[drop] <- NA # Remove values with high CVs
+  return(data)
+}
+
+# Create summary variables
+data[, ':='(
+  firstState = state.name[which.min(question.attempt)],
+  lastState = state.name[which.max(question.attempt)],
+  maxQuestionAttempt = max(question.attempt),
+  modeTrap = modeFunc(state.name),
+  screenSecs = max(cumulative.secs.on.screen, na.rm = TRUE),
+  lessonTime = max(mins.on.lesson)),
+  by = .(userID, tutorialAttempt)]
+
+# Merging data.tables
+mergedData <- merge(data1, data2, by = c("id", "session"))
+```
+
+## Other resources
+- [R for begginers](https://cran.r-project.org/doc/contrib/Paradis-rdebuts_en.pdf)
+- The `data.table` [GitHub](https://github.com/Rdatatable/data.table/wiki/Getting-started)
+
