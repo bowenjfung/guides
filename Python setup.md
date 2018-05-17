@@ -11,7 +11,7 @@ Because different toolboxes will rely on either python2 or python3, it is a good
 1. Using the terminal, install the package manager `Homebrew`: `/usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"`
 2. Install `pyenv`: `brew install pyenv`
 3. Add `pyenv init` to your bash_profile: `echo -e 'if command -v pyenv 1>/dev/null 2>&1; then\n  eval "$(pyenv init -)"\nfi' >> ~/.bash_profile`
-4. Restart the shell: `$ exec "$SHELL"`
+4. Restart the shell: `exec "$SHELL"` (or just quit and restart)
 
 ## python
 With `pyenv` we can now install as many different versions of python as we might need. Type `pyenv install -l` for a list of all available versions.
