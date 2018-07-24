@@ -18,5 +18,11 @@ core.wait(0.5)
 parallel.setData(0)
 ```
 
+There are a number of constraints using the PsychoPy implementation of parallel and Biopac. To set individual pins, the function `parallel.setPin()` should be used, with the pin number and state as respective arguments (`parallel.setPin(2,1)` sets pin 2 to high). PsychoPy only allows pins 2-9 to be set in this manner.
+
+To read parallel data using Acqknowledge, digital channels need to be added to the acquisition setup in addition to your physiological measures. Note that the digital channels feeding into the parallel port start at channel 8 (D8; the label when plotting is 28 by default).
+
+This setup constrains us to the use of 8 independent signals (Acqknowledge channels D8-D15/28-35).
+
 ## Some notes from testing
-Despite the apparent simplicity, I had quite a bit of difficulty getting this set up. I believe the problems related mainly to how the different versions (32 vs 64 bit) of each platform (Windows, Python, PsychoPy) read the parallel port drivers (e.g. inpout32). Ultimately, because the standalone version of PsychoPy operates under 32 bit python, the above method is the simplest, but will preclude testing on other (read 64 bit) platforms. 
+Despite the apparent simplicity of the installation and code above, I had quite a bit of difficulty getting this set up. I believe the problems related mainly to how the different versions (32 vs 64 bit) of each platform (Windows, Python, PsychoPy) read the parallel port drivers (e.g. inpout32). Ultimately, because the standalone version of PsychoPy operates under 32 bit python, the above method is the simplest alternative, but will preclude testing on other (read 64 bit) platforms. 
