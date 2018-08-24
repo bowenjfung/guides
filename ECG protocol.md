@@ -8,6 +8,8 @@
 - The CMS/DRL electrodes should be placed a centimetre under the left clavicle (approximately contralateral to EXG1), three inches apart from each other (if possible)
 - This configuration can be referred to as a modified Lead II Einthoven configuration
 
+- For BIOPAC, VIN- should go on right clavicle, VIN+ above third rib on the left side, with the ground on the third rib on the right side (see the alternative Lead II configuration [here](https://www.biopac.com/wp-content/uploads/BIOPAC-Great-ECG-Data.pdf)).
+
 ### Triggers
 If you are wanting to insert markers (triggers) into your data for task segmenting or response-related activity, you have two options. For each of these, you can use values from 0-255.
 
