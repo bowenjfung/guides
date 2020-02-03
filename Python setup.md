@@ -10,7 +10,7 @@ Because different toolboxes will rely on either python2 or python3, it is a good
 
 1. Using the terminal, install the package manager `Homebrew`: `/usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"`
 2. Install `pyenv`: `brew install pyenv`
-3. Add `pyenv init` to your bash_profile: `echo -e 'if command -v pyenv 1>/dev/null 2>&1; then\n  eval "$(pyenv init -)"\nfi' >> ~/.bash_profile`
+3. Add `pyenv init` to your bash_profile: `echo -e 'if command -v pyenv 1>/dev/null 2>&1; then\n  eval "$(pyenv init -)"\nfi' >> ~/.zprofile` (UPDATE: terminal has moved to using the zsh shell by default. If you are using a the bash shell, target the `~/.bash_profile` instead of `~/.zprofile`)
 4. Restart the shell: `exec "$SHELL"` (or just quit and restart)
 
 ## python
