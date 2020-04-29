@@ -58,12 +58,15 @@ You will also see the kernels status in the bottom left of the screen. You can c
 - Run cell: <kbd>⌥</kbd> <kbd>⌘</kbd> <kbd>⏎</kbd> 
 
 ## R in Atom
-- First install the R language grammer: `apm install atom-language-r` (note `language-r` is depreciated and throws an error)
-- Assuming you have R / Rstudio installed, open a terminal and run `R`
-- Then:
+1. First install the R language grammer: `apm install atom-language-r` (note `language-r` is depreciated and throws an error)
+2. Assuming you have R / Rstudio installed, open a terminal and run `R`
+3. Then:
 ```
 install.packages('devtools')
 devtools::install_github('IRkernel/IRkernel')
 IRkernel::installspec()
 ```
-- To point Atom toward the IR kernel for Rmd files, add the kernel to the Hydrogen Language Mappings settings, i.e. `{ "python": "magicpython", "r": "r markdown" }`
+4. To point Atom toward the IR kernel for Rmd files, add the kernel to the Hydrogen Language Mappings settings, i.e. `{ "python": "magicpython", "r": "r markdown" }`
+
+## Collaboration via teletype
+- `apm install teletype`
