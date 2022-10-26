@@ -1,0 +1,53 @@
+# Python executable guide
+## Initial setup
+ Lots of weird problems means this is pretty involved. Many of these steps may be unnecessary in the future once the packages update.
+ 
+### Install pyenv (also see [here](https://github.com/bowenjfung/guides/blob/master/Python%20setup.md))
+We're first going to install a package that manages python environments, so that we can create an executable that has the bare minimum of dependencies bundles with it. (A full anaconda python distribution casues our notify executable to be >200 MB.)
+
+- Using the terminal, install the package manager Homebrew: `/usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"`
+- Install pyenv: `brew install pyenv`
+- Add pyenv init to your bash_profile: `echo -e 'if command -v pyenv 1>/dev/null 2>&1; then\n eval "$(pyenv init -)"\nfi' >> ~/.zprofile` (UPDATE: terminal has moved to using the zsh shell by default. If you are using a the bash shell, target the `~/.bash_profile` instead of `~/.zprofile`)
+- Restart the shell: `exec "$SHELL" (or just quit and restart)`
+
+### Install brew tcl-tk
+When we install python with pyenv, for some reason it doesn't compile using some of the default libraries, including `tkinter`, which we need for GUIs. Here we install this separately and point pyevnv toward it.
+- Run `brew install tcl-tk`
+- Add to path: `echo 'export PATH="/usr/local/opt/tcl-tk/bin:$PATH"' >> ~/.zshrc`
+- `export LDFLAGS="-L/usr/local/opt/tcl-tk/lib" >> ~/.zshrc`
+- `export CPPFLAGS="-I/usr/local/opt/tcl-tk/include" >> ~/.zshrc`
+- `export PKG_CONFIG_PATH="/usr/local/opt/tcl-tk/lib/pkgconfig" >> ~/.zshrc`
+
+- Go to `/usr/local/Cellar/pyenv/1.2.13/plugins/python-build/bin/python-build`, replacing the version with whichever you are using
+- Replace `$CONFIGURE_OPTS ${!PACKAGE_CONFIGURE_OPTS} "${!PACKAGE_CONFIGURE_OPTS_ARRAY}" || return 1` with `$CONFIGURE_OPTS --with-tcltk-includes='-I/usr/local/opt/tcl-tk/include' --with-tcltk-libs='-L/usr/local/opt/tcl-tk/lib -ltcl8.6 -ltk8.6' ${!PACKAGE_CONFIGURE_OPTS} "${!PACKAGE_CONFIGURE_OPTS_ARRAY}" || return 1`
+
+### Install python and check thank tkinter works
+We should now be set up to install a python version of our choice (although I read that < 3.5.3 have some other pyenv issues...)
+- We need to change some options so that this will work with pyinstaller: `env PYTHON_CONFIGURE_OPTS="--enable-shared" pyenv install 3.7.5` 
+- Now we just change the global environment to our new python version: `pyenv global 3.7.5`
+- And make sure tkinter works: `python -m tkinter -c 'tkinter._test()'`
+
+### Now install dependencies
+- First upgrade pip: `pip install --upgrade pip`
+- Then install all dependencies: e.g. `pip install numpy` etc.
+- Install pyinstaller: `pip install pyinstaller`
+- Install notify: `pip install git+https://github.com/govau/notify-client-python.git@v5.2.2`
+
+## Additions to your script
+- There are a couple of things we may need to change in a script to help it run as an executable
+- If we need to create external files or directories, we want to do this at whereever the executable is launched: `os.path.dirname(os.path.realpath(sys.executable))` will give you the directory
+- If we need to read files that have been packaged with the executable, we also need an internal path: `sys._MEIPASS` will give you directory of the temporary folder that the executable create (and removes) when it runs
+
+## Pyinstaller
+- We can now run pyinstaller from the directory of our script: `pyinstaller --onefile --add-data 'officer_rankings.csv:.' --icon=randomise_icon.ico randomise.py`
+- `--add-data` indicates any data we want internal to the executable
+- `--onefile` will package as a single executable (a little slower than the version will folders)
+- `--icon` is meant to change the executable icon, but I haven't gotten this to work...
+- To just generate the spec file (for use in docker etc), use: `pyi-makespec`
+
+## Docker
+- If we want to create a file for Windows, we need to install docker and run pyinstaller from a virtual Ubuntu machine running wine ([see here](https://github.com/cdrx/docker-pyinstaller))
+- On macOS, download the [Docker Desktop app](https://www.docker.com/products/docker-desktop)
+- Create a spec file (see above) and a requirements.txt file (you can generate this using `pip freeze > requirements.txt`)
+- Note that any packages that aren't on PyPI (i.e. notify) have to be entered into the requirements text file in this format: `https://github.com/govau/notify-client-python/archive/master.zip`
+- Then simply run `docker run -v "$(pwd):/src/" cdrx/pyinstaller-windows` from the directory where your script, requirements and spec file are
